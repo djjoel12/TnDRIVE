@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-
-// ✅ URL COMPLÈTE - Le proxy Expo ne marche pas
-const API_URL = 'http://localhost:5000/api';
+import { API_URL } from '../constants/api';
 
 export default function CompanyRegisterScreen({ navigation }: any) {
   const [nom, setNom] = useState('');
@@ -13,53 +11,38 @@ export default function CompanyRegisterScreen({ navigation }: any) {
 
   const handleRegister = async () => {
     console.log('🎯 1 - Bouton cliqué');
-    
+
     if (!nom || !email || !whatsapp || !motDePasse) {
-      console.log('❌ 2 - Champs manquants');
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
 
-    console.log('✅ 3 - Tous les champs remplis:', { nom, email, whatsapp });
-    
     setLoading(true);
-    
+
     try {
       console.log('🚀 4 - Début de la requête fetch');
-      
-      // ✅ URL COMPLÈTE au lieu de /api/...
+
       const response = await fetch(`${API_URL}/companies/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nom,
-          email,
-          whatsapp,
-          motDePasse,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom, email, whatsapp, motDePasse }),
       });
 
       console.log('📡 5 - Réponse reçue, status:', response.status);
-      
       const data = await response.json();
       console.log('📦 6 - Données reçues:', data);
 
       if (response.ok) {
-        console.log('✅ 7 - Inscription réussie');
         Alert.alert('Succès', 'Compte créé avec succès', [
           { text: 'OK', onPress: () => navigation.navigate('CompanyLogin') }
         ]);
       } else {
-        console.log('❌ 8 - Erreur backend:', data.message);
         Alert.alert('Erreur', data.message || 'Erreur lors de la création');
       }
-    } catch (error) {
-      console.log('💥 9 - Erreur fetch:', error);
+    } catch (error: any) {
+      console.log('💥 Erreur fetch:', error);
       Alert.alert('Erreur', 'Problème de connexion au serveur: ' + error.message);
     } finally {
-      console.log('🔚 10 - Finally executé');
       setLoading(false);
     }
   };
